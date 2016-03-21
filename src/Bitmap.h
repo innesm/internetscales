@@ -5,7 +5,7 @@
 //////////////////////////////////////////////////
 // Generic pixel display
 //////////////////////////////////////////////////
-template<typename TPixel, size_t W, size_t H>
+template<typename TPixel, int W, int H>
 class Bitmap
 {
   TPixel _pixels[W*H];
@@ -15,7 +15,7 @@ public:
   {
   }
 
-  TPixel& pixel(size_t x, size_t y)
+  TPixel& pixel(int x, int y)
   {
     return _pixels[y * W + x];
   }
