@@ -1,0 +1,13 @@
+#ifndef _SCREEN_POINT_INCLUDE_
+#define _SCREEN_POINT_INCLUDE_
+
+//////////////////////////////////////////////////
+// A position on a screen
+//////////////////////////////////////////////////
+class ScreenPoint
+{
+public:
+  int x, y;
+};
+
+#endif
