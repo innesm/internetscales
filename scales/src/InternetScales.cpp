@@ -1,9 +1,10 @@
 #include <Arduino.h>
-#include <SPI.h>
 
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 
+#include "WifiConfig.h"
+#include "Internet.h"
 #include "WeightDisplay.h"
 #include "Bitmap.h"
 #include "Countdown.h"
@@ -24,36 +25,13 @@ void readSegments(int backplane)
 // taken to sample the segment lines.
 const int ticktime = 1900;
 
-void wifi_connect()
-{
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(1000);
-  }
-}
-
-void post_to_thingspeak(int weight_grams)
-{
-  wifi_connect();
-
-  HTTPClient http;
-
-  //upload a thingspeak channel event
-  String url = "http://184.106.153.149/update?key=CCR1U59IU6AAKTGD&field1=";
-  url += weight_grams / 1000.0F;
-
-  http.begin(url);//google.com
-  int httpCode = http.GET();
-
-  WiFi.disconnect(true);
-}
-
 void setup()
 {
   pinMode(BUILTIN_LED, OUTPUT);
   init_mcp3008_spi();
+  Serial.begin(74880);
+  Serial.println(ESP.getResetReason());
+  Serial.println(ESP.getResetInfo());
 }
 
 enum class state
@@ -70,15 +48,23 @@ bool led;
 
 void loop()
 {
+  // read backplane 0 'clock'
+  int BP0 = read_analog(0);
 
   if (cd.done())
   {
+    if (currstate == state::idle)
+    {
+      Serial.print("idle ");
+      Serial.println(BP0);
+    }
+    else
+    {
+      Serial.print(".");
+    }
     led = !led;
     digitalWrite(BUILTIN_LED, led);
   }
-
-  // read backplane 0 'clock'
-  int BP0 = read_analog(0);
 
   switch(currstate)
   {
@@ -94,10 +80,21 @@ void loop()
 
         delayMicroseconds(50);
       }
+      else if (BP0 < VOLTAGE_0_TO_1)
+      {
+        // check if zero for longer than a tick, meaning properly idle.
+        // if so, sleep for a second.
+        delay(2);
+        int BP0 = read_analog(0);
+        if (BP0 < VOLTAGE_0_TO_1)
+        {
+          Serial.println("back to sleep.");
+          ESP.deepSleep(5000000, WAKE_RF_DEFAULT);//WAKE_RF_DISABLED); // a second (500,000 microseconds)
+        }
+      }
       else
       {
         delayMicroseconds(200);
-        break;
       }
 
     case state::waitingedge:
@@ -136,6 +133,10 @@ void loop()
         int weight_grams;
         if (screen.try_get_weight_grams(weight_grams))
         {
+          Serial.print("Weight reading: ");
+          Serial.print(weight_grams);
+          Serial.println("g");
+
           digitalWrite(LED_BUILTIN, 1);
           // we captured a weight value.
           screen.try_get_weight_grams(weight_grams);
@@ -143,6 +144,13 @@ void loop()
           post_to_thingspeak(weight_grams);
           //wait for scale to settle down
           delay(10000);
+        }
+        else
+        {
+          if (screen.is_current_weight() || screen.is_previous_weight())
+          {
+            Serial.println("Weight done, but not in kgs.");
+          }
         }
       }
 

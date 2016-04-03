@@ -1,0 +1,2 @@
+#define WIFI_SSID "SKY8AC1E"
+#define WIFI_PASSWORD "TDSCXVQU"
