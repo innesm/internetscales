@@ -29,5 +29,5 @@ void loop()
   }
   digitalWrite(BUILTIN_LED, 1);
   Serial.println("Sleep for 10 seconds.");
-  ESP.deepSleep(10000000, WAKE_RF_DISABLED);//WAKE_RF_DEFAULT);// WAKE_RF_DISABLED);
+  ESP.deepSleep(10000000, WAKE_RF_DEFAULT);//WAKE_RF_DEFAULT);// WAKE_RF_DISABLED);
 }

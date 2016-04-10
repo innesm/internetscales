@@ -89,7 +89,7 @@ void loop()
         if (BP0 < VOLTAGE_0_TO_1)
         {
           Serial.println("back to sleep.");
-          ESP.deepSleep(5000000, WAKE_RF_DEFAULT);//WAKE_RF_DISABLED); // a second (500,000 microseconds)
+          ESP.deepSleep(60000000, WAKE_RF_DEFAULT);//WAKE_RF_DISABLED); // a second (500,000 microseconds)
         }
       }
       else
@@ -143,7 +143,9 @@ void loop()
           //connect to wifi and upload
           post_to_thingspeak(weight_grams);
           //wait for scale to settle down
-          delay(10000);
+          Serial.println("back to sleep after logging a weight reading.");
+          ESP.deepSleep(15000000, WAKE_RF_DEFAULT);//WAKE_RF_DISABLED); // a second (500,000 microseconds)
+
         }
         else
         {

@@ -1,12 +1,19 @@
+#include <Arduino.h>
+
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
 
 void wifi_connect()
 {
+  Serial.println("Connect to wifi");
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
   while (WiFi.status() != WL_CONNECTED)
   {
+    Serial.print(".");
     delay(1000);
   }
+  Serial.println(WiFi.localIP());
 }
 
 void post_to_thingspeak(int weight_grams)
