@@ -12,6 +12,13 @@
 
 WeightDisplay screen;
 
+// NODEMCU 1.0
+//  gpio   |  function |  header pin label
+//  GPIO12 |  MISO     |  "D6"
+//  GPIO13 |  MOSI     |  "D7"
+//  GPIO14 |  CLK      |  "D5"
+//  GPIO15 |  CS       |  "D8"
+
 int VOLTAGE_0_TO_1 = 200;  //between bias level 0 and 1
 int VOLTAGE_2_TO_3 = 800; // between bias level 2 and 3
 
